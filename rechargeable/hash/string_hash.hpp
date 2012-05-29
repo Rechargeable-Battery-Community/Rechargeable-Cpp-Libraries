@@ -1,5 +1,5 @@
 /**
- * \file fnv1a.hpp
+ * \file string_hash.hpp
  *
  * \section COPYRIGHT
  *
@@ -29,42 +29,37 @@
  *   distribution.
  */
 
-#ifndef RECHARGEABLE_FNV1A_HPP_INCLUDED
-#define RECHARGEABLE_FNV1A_HPP_INCLUDED
+#ifndef RECHARGEABLE_STRING_HASH_HPP_INCLUDED
+#define RECHARGEABLE_STRING_HASH_HPP_INCLUDED
 
 #include <rechargeable/hash/detail/const_char_wrapper.hpp>
 
 namespace rechargeable
 {
-	struct fnv1a_context
+	template <typename Function>
+	class string_hash
 	{
-		typedef std::uint32_t hash_value;
+		public:
+			typedef typename Function::hash_value hash_value;
 
-		hash_value value;
+			string_hash(detail::const_char_wrapper value);
 
-		static const hash_value offset = 1;
-		static const hash_value prime = 1;
+			template <std::size_t N>
+			string_hash(const char (&value)[N]);
 
-	} ; // end struct fnv1a_context
+			hash_value get_hash() const;
 
-	void initialize_context(fnv1a_context* context);
-	fnv1a_context::hash_value finalize_context(fnv1a_context* context);
+			bool operator== (const string_hash& rhs) const;
+			bool operator!= (const string_hash& rhs) const;
 
-	struct fnv1a
-	{
-		typedef fnv1a_context::hash_value hash_value;
+		private:
 
-		template <std::size_t N>
-		static hash_value hash(const char (&buffer)[N]);
+			hash_value _hash;
 
-		static hash_value hash(detail::const_char_wrapper str);
-		
-		static void hash(const char* buffer, std::size_t count, fnv1a_context* context);
+	} ; // end class string_hash<Function>
 
-	} ; // end struct fnv1a
-
-	#include <rechargeable/hash/fnv1a.inl>
+	#include "string_hash.inl"
 
 } // end namespace rechargeable
 
-#endif // end RECHARGEABLE_FNV1A_HPP_INCLUDED
+#endif // end RECHARGEABLE_STRING_HASH_HPP_INCLUDED

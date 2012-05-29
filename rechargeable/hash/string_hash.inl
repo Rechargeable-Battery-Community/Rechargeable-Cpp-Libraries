@@ -1,5 +1,5 @@
 /**
- * \file fnv1a.inl
+ * \file string_hash.inl
  *
  * \section COPYRIGHT
  *
@@ -29,72 +29,51 @@
  *   distribution.
  */
 
-#ifndef RECHARGEABLE_FNV1A_INL_INCLUDED
-#define RECHARGEABLE_FNV1A_INL_INCLUDED
+#ifndef RECHARGEABLE_STRING_HASH_INL_INCLUDED
+#define RECHARGEABLE_STRING_HASH_INL_INCLUDED
 
 //---------------------------------------------------------------------
 
-RECHARGEABLE_FORCE_INLINE
-void initialize_context(fnv1a_context* context)
-{
-	context->value = fnv1a_context::offset;
-}
-
-//---------------------------------------------------------------------
-
-RECHARGEABLE_FORCE_INLINE
-fnv1a_context::hash_value finalize_context(fnv1a_context* context)
-{
-	return context->value;
-}
-
-//---------------------------------------------------------------------
-
+template <typename Function>
 template <std::size_t N>
 RECHARGEABLE_FORCE_INLINE
-fnv1a::hash_value fnv1a::hash(const char (&buffer)[N])
+string_hash<Function>::string_hash(const char (&value)[N])
+	: _hash(Function::hash(value))
+{ }
+
+//---------------------------------------------------------------------
+
+template <typename Function>
+RECHARGEABLE_INLINE
+string_hash<Function>::string_hash(detail::const_char_wrapper value)
+	: _hash(Function::hash(value))
+{ }
+
+//---------------------------------------------------------------------
+
+template <typename Function>
+RECHARGEABLE_INLINE
+typename string_hash<Function>::hash_value string_hash<Function>::get_hash() const
 {
-	return (hash<N-1>((const char(&)[N-1])buffer) ^ buffer[N-1]) * fnv1a_context::prime;
+	return _hash;
 }
 
 //---------------------------------------------------------------------
 
-template <>
-RECHARGEABLE_FORCE_INLINE
-fnv1a::hash_value fnv1a::hash<1>(const char (&buffer)[1])
+template <typename Function>
+RECHARGEABLE_INLINE
+bool string_hash<Function>::operator== (const string_hash& rhs) const
 {
-	return (fnv1a_context::offset ^ buffer[0]) * fnv1a_context::prime;
+	return _hash == rhs._hash;
 }
 
 //---------------------------------------------------------------------
 
-RECHARGEABLE_FORCE_INLINE
-fnv1a::hash_value fnv1a::hash(detail::const_char_wrapper str)
+template <typename Function>
+RECHARGEABLE_INLINE
+bool string_hash<Function>::operator!= (const string_hash& rhs) const
 {
-	fnv1a_context context;
-	initialize_context(&context);
-
-	const char* buffer = str.get_string();
-
-	while (*buffer != '\0')
-	{
-		context.value ^= *buffer++;
-		context.value *= fnv1a_context::prime;
-	}
-
-	return finalize_context(&context);
+	return _hash != rhs._hash;
 }
 
-//---------------------------------------------------------------------
-
-RECHARGEABLE_FORCE_INLINE
-void fnv1a::hash(const char* buffer, std::size_t count, fnv1a_context* context)
-{
-	for (std::size_t i = 0; i < count; ++i)
-	{
-		context->value ^= *buffer++;
-		context->value *= fnv1a_context::prime;
-	}
-}
-
-#endif // end RECHARGEABLE_FNV1A_INL_INCLUDED
+#endif // end RECHARGEABLE_STRING_HASH_INL_INCLUDED

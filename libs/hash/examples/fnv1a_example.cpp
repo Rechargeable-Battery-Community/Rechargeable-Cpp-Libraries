@@ -29,18 +29,18 @@
  *   distribution.
  */
 
+#include <iostream>
 #include <rechargeable/hash/fnv1a.hpp>
-#include <cstdio>
+#include <rechargeable/hash/string_hash.hpp>
+using namespace rechargeable;
+
+//---------------------------------------------------------------------
 
 int main()
 {
-	std::uint32_t compile_time = rechargeable::fnv1a::hash<5>("test");
-	std::uint32_t run_time = rechargeable::fnv1a::hash("test");
+	std::uint32_t compile_time = rechargeable::fnv1a::hash("test");
+	std::cout << "fnv1a(\"test\") = " << compile_time << std::endl;
 
-	rechargeable::fnv1a_context context;
-	initialize_context(&context);
-
-	rechargeable::fnv1a::hash("test", 4, &context);
-
-	std::uint32_t run_time_explicit = finalize_context(&context);
+	string_hash<fnv1a> compile_time_class("test");
+	std::cout << "fnv1a(\"test\") = " << compile_time_class.get_hash() << std::endl;
 }

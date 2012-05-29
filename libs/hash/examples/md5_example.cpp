@@ -29,29 +29,71 @@
  *   distribution.
  */
 
+#include <iostream>
+#include <iomanip>
 #include <rechargeable/hash/md5.hpp>
-#include <cstdio>
+#include <rechargeable/hash/string_hash.hpp>
+using namespace rechargeable;
 
-void md5_print(const rechargeable::md5_digest& digest)
+//---------------------------------------------------------------------
+
+std::ostream& operator<< (std::ostream& output, const md5_digest& digest)
 {
 	for (std::size_t i = 0; i < 16; ++i)
-		printf("%02x", digest.digest[i]);
+		output << std::hex << std::setfill('0') << std::setw(2) << static_cast<std::uint32_t>(digest.digest[i]);
+
+	return output;
 }
 
-void md5_test(const char* value)
+//---------------------------------------------------------------------
+
+void md5_hash(const char* value)
 {
-	rechargeable::md5_digest test = rechargeable::md5::hash(value);
-	printf("\nMD5 (\"%s\"): ", value);
-	md5_print(test);
+	std::cout << "md5(\"" << value << "\") = " << md5::hash(value) << std::endl;
 }
+
+//---------------------------------------------------------------------
+
+void md5_function()
+{
+	std::cout << "Using md5::hash\n";
+
+	md5_hash("");
+	md5_hash("a");
+	md5_hash("abc");
+	md5_hash("message digest");
+	md5_hash("abcdefghijklmnopqrstuvwxyz");
+	md5_hash("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+	md5_hash("12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+}
+
+//---------------------------------------------------------------------
+
+void md5_string_hash(const char* value)
+{
+	string_hash<md5> hash(value);
+	std::cout << "md5(\"" << value << "\") = " << hash.get_hash() << std::endl;
+}
+
+//---------------------------------------------------------------------
+
+void md5_class()
+{
+	std::cout << "\nUsing string_hash<md5>\n";
+
+	md5_string_hash("");
+	md5_string_hash("a");
+	md5_string_hash("abc");
+	md5_string_hash("message digest");
+	md5_string_hash("abcdefghijklmnopqrstuvwxyz");
+	md5_string_hash("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+	md5_string_hash("12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+}
+
+//---------------------------------------------------------------------
 
 int main()
 {
-	md5_test("");
-	md5_test("a");
-	md5_test("abc");
-	md5_test("message digest");
-	md5_test("abcdefghijklmnopqrstuvwxyz");
-	md5_test("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-	md5_test("12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+	md5_function();
+	md5_class();
 }

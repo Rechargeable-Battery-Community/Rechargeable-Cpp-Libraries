@@ -32,9 +32,25 @@
 #ifndef RECHARGEABLE_DETAIL_CONST_CHAR_WRAPPER_HPP_INCLUDED
 #define RECHARGEABLE_DETAIL_CONST_CHAR_WRAPPER_HPP_INCLUDED
 
+#include <rechargeable/config.hpp>
+
 namespace rechargeable { namespace detail
 {
+	class const_char_wrapper
+	{
+		public:
 
+			const_char_wrapper(const char* str);
+
+			const char* get_string() const;
+
+		private:
+
+			const char* _string;
+
+	} ; // end class const_char_wrapper
+
+	#include <rechargeable/hash/detail/const_char_wrapper.inl>
 
 } } // end namespace rechargeable::detail
 

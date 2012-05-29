@@ -254,6 +254,23 @@ namespace
 		state[3] += d;
 	}
 
+	//---------------------------------------------------------------------
+
+	RECHARGEABLE_FORCE_INLINE
+	std::uint32_t compare(const md5_digest& lhs, const md5_digest& rhs)
+	{
+		const std::uint32_t* lhs_values = reinterpret_cast<const std::uint32_t*>(lhs.digest);
+		const std::uint32_t* rhs_values = reinterpret_cast<const std::uint32_t*>(rhs.digest);
+
+		std::uint8_t result;
+		result  = (lhs_values[0] == rhs_values[0]);
+		result |= (lhs_values[1] == rhs_values[1]) << 1;
+		result |= (lhs_values[2] == rhs_values[2]) << 2;
+		result |= (lhs_values[3] == rhs_values[3]) << 3;
+
+		return result != 0;
+	}
+
 } // end anonymous namespace
 
 //---------------------------------------------------------------------
@@ -282,10 +299,10 @@ md5_context::hash_value md5_context::get_value()
 
 	// Pad out to 56 mod 64
 	std::uint32_t paddingCount = ((index < 56) ? 56 : 120) - index;
-	md5::hash((const char*)__padding, paddingCount, this);
+	md5::hash(reinterpret_cast<const char*>(__padding), paddingCount, this);
 
 	// Append the length (before padding)
-	md5::hash((const char*)bits, 8, this);
+	md5::hash(reinterpret_cast<const char*>(bits), 8, this);
 
 	// Store state in digest
 	md5_context::hash_value digest;
@@ -296,9 +313,25 @@ md5_context::hash_value md5_context::get_value()
 
 //---------------------------------------------------------------------
 
-md5::hash_value md5::hash(const char* buffer)
+bool operator== (const md5_digest& lhs, const md5_digest& rhs)
+{
+	return compare(lhs, rhs) == 0;
+}
+
+//---------------------------------------------------------------------
+
+bool operator!= (const md5_digest& lhs, const md5_digest& rhs)
+{
+	return compare(lhs, rhs) != 0;
+}
+
+//---------------------------------------------------------------------
+
+md5::hash_value md5::hash(detail::const_char_wrapper str)
 {
 	md5_context context;
+
+	const char* buffer = str.get_string();
 
 	// Get the length of the string
 	// Causes the string to be iterated over twice
@@ -339,8 +372,7 @@ void md5::hash(const char* buffer, std::size_t count, md5_context* context)
 			transform(context->_state, context->_buffer);
 			i = partialLength;
 
-			// A block was transformed so the
-			// index should revert to 0
+			// A block was transformed, revert index to 0
 			index = 0;
 		}
 

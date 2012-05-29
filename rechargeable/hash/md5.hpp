@@ -32,7 +32,7 @@
 #ifndef RECHARGEABLE_MD5_HPP_INCLUDED
 #define RECHARGEABLE_MD5_HPP_INCLUDED
 
-#include <rechargeable/config.hpp>
+#include <rechargeable/hash/detail/const_char_wrapper.hpp>
 
 namespace rechargeable
 {
@@ -43,6 +43,9 @@ namespace rechargeable
 		std::uint8_t digest[16];
 
 	} ; // end struct md5_digest
+
+	bool operator== (const md5_digest& lhs, const md5_digest& rhs);
+	bool operator!= (const md5_digest& lhs, const md5_digest& rhs);
 
 	class md5_context
 	{
@@ -70,7 +73,7 @@ namespace rechargeable
 			typedef md5_context hash_context;
 			typedef md5_context::hash_value hash_value;
 
-			static hash_value hash(const char* buffer);
+			static hash_value hash(detail::const_char_wrapper str);
 			static void hash(const char* buffer, std::size_t count, hash_context* context);
 
 		private:
