@@ -69,4 +69,27 @@
 #	define RECHARGEABLE_ITEM RECHARGEABLE_IMPORT
 #endif
 
+//---------------------------------------------------------------------
+// Define internal.
+//
+// C# has an additional access control level called internal. The
+// access level allows components in the same assembly to access the
+// method or variable. The closest C++ analog is friendship.
+//
+// The intent of internal is to allow the library to denote certain
+// member methods and variables as off limits. By default internal
+// expands to private. Access is then granted through friendship.
+//
+// This behavior can be overriden by defining INTERNAL_IS_PUBLIC,
+// which expands internal to public.
+//---------------------------------------------------------------------
+
+#define INTERNAL_IS_PUBLIC
+
+#if defined(INTERNAL_IS_PUBLIC)
+#	define internal public
+#else
+#	define internal private
+#endif
+
 #endif // end RECHARGEABLE_CONFIG_HPP_INCLUDED

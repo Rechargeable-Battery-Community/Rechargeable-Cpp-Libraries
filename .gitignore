@@ -1,0 +1,10 @@
+# Visual Studio files
+*.sln
+*.sdf
+*.suo
+*.opensdf
+
+# Visual Studio 2010 Intellisense directory
+ipch
+
+bin
